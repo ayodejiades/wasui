@@ -17,7 +17,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <SuiClientProvider networks={networkConfig} defaultNetwork="testnet">
-        <WalletProvider autoConnect>
+        {/* @ts-ignore - stashedWallet might be missing from types in this version */}
+        <WalletProvider autoConnect enableUnsafeBurner={true} stashedWallet={true}>
           {children}
         </WalletProvider>
       </SuiClientProvider>

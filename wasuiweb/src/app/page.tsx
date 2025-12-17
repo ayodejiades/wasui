@@ -203,23 +203,23 @@ export default function Home() {
           {/* Header */}
           <div className="flex justify-between items-start pointer-events-auto">
             {/* Glass Container */}
-            <div className="relative group overflow-hidden bg-gradient-to-br from-white/10 via-black/30 to-black/50 backdrop-blur-2xl p-5 rounded-2xl border border-white/10 border-t-white/20 border-l-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:shadow-[0_8px_32px_0_rgba(0,234,255,0.2)] transition-all duration-500">
+            <div className="relative group overflow-hidden bg-gradient-to-br from-white/10 via-black/30 to-black/50 backdrop-blur-2xl p-3 sm:p-5 rounded-2xl border border-white/10 border-t-white/20 border-l-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:shadow-[0_8px_32px_0_rgba(0,234,255,0.2)] transition-all duration-500 max-w-[50%] sm:max-w-none">
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
               {/* Content */}
               <div className="relative z-10">
-                <h1 className="text-4xl font-black tracking-tighter italic bg-gradient-to-r from-cyan-300 via-blue-500 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(0,234,255,0.3)]">
-                  Wa<span className="text-cyan-200/90 mix-blend-overlay">Sui</span>
+                <h1 className="text-2xl sm:text-4xl font-black tracking-tighter italic bg-gradient-to-r from-cyan-300 via-blue-500 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(0,234,255,0.3)]">
+                  wa<span className="text-cyan-200/90 mix-blend-overlay">SUI</span>
                 </h1>
 
-                <div className="flex items-center gap-3 mt-3">
-                  <div className="relative flex items-center justify-center w-4 h-4 rounded-full bg-black/20 shadow-inner ring-1 ring-white/10">
-                    <div className={`w-2 h-2 rounded-full shadow-lg ${userLocation ? 'bg-green-400 shadow-green-400/50' : 'bg-red-400 shadow-red-400/50'}`} />
+                <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-3">
+                  <div className="relative flex items-center justify-center w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-black/20 shadow-inner ring-1 ring-white/10">
+                    <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shadow-lg ${userLocation ? 'bg-green-400 shadow-green-400/50' : 'bg-red-400 shadow-red-400/50'}`} />
                   </div>
 
-                  <p className="text-xs font-mono text-cyan-100/70 tracking-widest tabular-nums drop-shadow-sm">
+                  <p className="text-[10px] sm:text-xs font-mono text-cyan-100/70 tracking-widest tabular-nums drop-shadow-sm truncate">
                     {userLocation
                       ? `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`
-                      : "ACQUIRING SIGNAL..."}
+                      : "SIGNAL..."}
                   </p>
                 </div>
               </div>

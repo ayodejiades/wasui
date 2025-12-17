@@ -13,15 +13,14 @@ export type Treasure = {
 };
 
 // Initial seeds
-// Initial seeds - only used if blockchain fetch fails or as placeholder
 const SEED_TREASURES: Treasure[] = [
   {
     id: "0xMock1",
     creator: "0x0",
-    name: "Demo Stash (Local)",
+    name: "Christmas Stash",
     description: "A starter loot for demo purposes.",
-    lat: 40.7128,
-    lng: -74.0060,
+    lat: 6.4418,
+    lng: 3.3737,
     isClaimed: false
   }
 ];
@@ -39,22 +38,14 @@ export function useGameLogic() {
       // Fetch real treasures
       const onChainTreasures = await fetchAllTreasures();
 
-      // Merge logic: For now we'll just use the on-chain ones plus maybe some local temp ones if needed.
-      // In a real app we might want to be smarter about merging optimistic updates.
-      // For this implementation, we'll effectively replace with on-chain data, 
-      // ensuring we don't lose the demo experience if no on-chain data exists yet.
-
       if (onChainTreasures.length > 0) {
         setTreasures(onChainTreasures);
       } else {
-        // Fallback to seed if blockchain empty (for demo)
-        // Only if we haven't loaded anything yet
         setTreasures(prev => prev.length === 0 ? SEED_TREASURES : prev);
       }
       setIsLoadingTreasures(false);
     } catch (error) {
       logError("Failed to sync treasures", error);
-      // Fallback
       setTreasures(prev => prev.length === 0 ? SEED_TREASURES : prev);
       setIsLoadingTreasures(false);
     }
@@ -63,8 +54,6 @@ export function useGameLogic() {
   // Initial fetch and polling
   useEffect(() => {
     syncTreasures();
-
-    // Poll every 30 seconds
     const intervalId = setInterval(syncTreasures, 30000);
     return () => clearInterval(intervalId);
   }, [syncTreasures]);

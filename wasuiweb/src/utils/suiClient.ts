@@ -61,24 +61,53 @@ export async function fetchAllTreasures(): Promise<Treasure[]> {
             return [];
         }
 
-        logger.debug('Fetching treasures from blockchain', { packageId, network });
+        logger.debug('Fetching treasures via events', { packageId, network });
 
-        // Query all Treasure objects
-        // Note: This is a simplified version. In production, you'd want pagination
-        const objects = await suiClient.getOwnedObjects({
-            owner: packageId, // This won't work as-is, need to query by type
+        // 1. Query events to find created treasures
+        const events = await suiClient.queryEvents({
+            query: {
+                MoveEventType: `${packageId}::game::TreasureCreated`,
+            },
+            limit: 50,
+            order: 'descending',
+        });
+
+        // 2. Extract Object IDs
+        const objectIds = events.data
+            .map((e: any) => {
+                const id = e.parsedJson?.id;
+                if (!id) {
+                    logger.warn('Event missing parsedJson.id', { eventId: e.id });
+                }
+                return id;
+            })
+            .filter((id): id is string => !!id);
+
+        if (objectIds.length === 0) {
+            return [];
+        }
+
+        // Deduplicate IDs
+        const uniqueIds = Array.from(new Set(objectIds));
+
+        // 3. Fetch current object states (in case they were burned/modified)
+        const objects = await suiClient.multiGetObjects({
+            ids: uniqueIds,
             options: {
                 showContent: true,
                 showOwner: true,
             },
         });
 
-        // Parse objects into treasures
-        const treasures = objects.data
-            .map(parseObjectToTreasure)
+        // 4. Parse and filter
+        const treasures = objects
+            .map((obj) => {
+                if (obj.error) return null; // Handle deleted/missing objects
+                return parseObjectToTreasure(obj);
+            })
             .filter((t): t is Treasure => t !== null);
 
-        logger.info(`Fetched ${treasures.length} treasures from blockchain`);
+        logger.info(`Fetched ${treasures.length} treasures from events`);
         return treasures;
     } catch (error) {
         logError('Failed to fetch treasures from blockchain', error);

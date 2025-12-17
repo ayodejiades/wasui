@@ -1,6 +1,6 @@
 {
-  "name": "WaSui",
-  "short_name": "WaSui",
+  "name": "waSUI",
+  "short_name": "waSUI",
   "description": "AR Treasure Hunt on Sui Blockchain",
   "start_url": "/",
   "display": "standalone",

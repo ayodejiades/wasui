@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { ErrorBoundary } from "../components/ErrorBoundary";
@@ -22,19 +23,19 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "WaSui - AR Treasure Hunt on Sui Blockchain",
+  title: "waSUI - AR Treasure Hunt on Sui Blockchain",
   description: "Zero-knowledge geolocation treasure hunting game with augmented reality on Sui blockchain. Find, create, and claim treasures in the real world.",
   keywords: ["sui", "blockchain", "ar", "augmented reality", "treasure hunt", "web3", "gaming", "geolocation", "zk-snarks"],
-  authors: [{ name: "WaSui Team" }],
+  authors: [{ name: "waSUI Team" }],
   openGraph: {
-    title: "WaSui - AR Treasure Hunt",
+    title: "waSUI - AR Treasure Hunt",
     description: "Find treasures in the real world with AR and blockchain technology",
     type: "website",
-    siteName: "WaSui",
+    siteName: "waSUI",
   },
   twitter: {
     card: "summary_large_image",
-    title: "WaSui - AR Treasure Hunt",
+    title: "waSUI - AR Treasure Hunt",
     description: "Zero-knowledge geolocation gaming on Sui",
   },
   manifest: "/manifest.json",

@@ -26,6 +26,7 @@ export default function Home() {
   // UI States
   const [isProcessing, setIsProcessing] = useState(false);
   const [createMode, setCreateMode] = useState(false);
+  const [rewardAmount, setRewardAmount] = useState<string>("0");
   const [arMode, setArMode] = useState(false);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
   const [selectedTreasure, setSelectedTreasure] = useState<Treasure | null>(null);
@@ -251,10 +252,25 @@ export default function Home() {
                 <ConnectButton />
               </div>
 
-              {/* Mobile Balance (Visible below connect button on small screens if needed, or integrated above) */}
+              {/* Mobile Balance */}
               {account && (
                 <div className="sm:hidden flex items-center gap-2 px-2 py-1 rounded-md bg-black/60 border border-white/10 backdrop-blur-md mb-1">
                   <span className="text-[10px] font-mono text-cyan-100">{formattedBalance} SUI</span>
+                </div>
+              )}
+
+              {createMode && (
+                <div className="bg-black/80 backdrop-blur-md p-3 rounded-xl border border-yellow-500/30 animate-fade-in-up mb-1 flex flex-col gap-1 w-full max-w-[200px]">
+                  <label className="text-xs text-yellow-500 font-bold uppercase tracking-wider">Add Reward (SUI)</label>
+                  <input
+                    type="number"
+                    value={rewardAmount}
+                    onChange={(e) => setRewardAmount(e.target.value)}
+                    className="bg-black/50 border border-white/20 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-yellow-500 w-full"
+                    placeholder="0.0"
+                    min="0"
+                    step="0.1"
+                  />
                 </div>
               )}
 
@@ -342,7 +358,7 @@ export default function Home() {
                 <div className="bg-black/60 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 flex items-center gap-3 animate-fade-in-up">
                   <MapPin size={16} className="text-gray-400" />
                   <p className="text-xs font-mono text-gray-300">
-                    Explore the map to find Stashes...
+                    Explore the map to find stashes...
                   </p>
                 </div>
               )

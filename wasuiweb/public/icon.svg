@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00eaff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0044ff;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="15" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" rx="100" fill="#0a0a0f"/>
+  <rect x="20" y="20" width="472" height="472" rx="80" fill="none" stroke="#00eaff" stroke-width="10" filter="url(#glow)"/>
+  
+  <!-- Chest Body -->
+  <path d="M106 256 L406 256 L386 406 L126 406 Z" fill="url(#grad1)" stroke="#fff" stroke-width="5"/>
+  <!-- Chest Lid -->
+  <path d="M106 256 C106 186, 406 186, 406 256 Z" fill="url(#grad1)" stroke="#fff" stroke-width="5"/>
+  <!-- Lock -->
+  <circle cx="256" cy="256" r="30" fill="#ffff00" stroke="#fff" stroke-width="5" filter="url(#glow)"/>
+</svg>

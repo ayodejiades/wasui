@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ConnectButton, useCurrentAccount, useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { ConnectButton, useCurrentAccount, useSignAndExecuteTransaction, useSuiClientQuery } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-import { Camera, MapPin, Plus, Trash2, Clock } from "lucide-react";
+import { Camera, MapPin, Plus, Trash2, Clock, Wallet } from "lucide-react";
 import MapboxMap from "../components/MapboxMap";
 import ARView from "../components/ARView";
 import { useGameLogic, Treasure } from "../hooks/useGameLogic";
@@ -16,6 +16,13 @@ export default function Home() {
   const account = useCurrentAccount();
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
 
+  // Balance Query
+  const { data: balanceData, refetch: refetchBalance } = useSuiClientQuery(
+    "getBalance",
+    { owner: account?.address || "" },
+    { enabled: !!account }
+  );
+
   // UI States
   const [isProcessing, setIsProcessing] = useState(false);
   const [createMode, setCreateMode] = useState(false);
@@ -25,6 +32,11 @@ export default function Home() {
 
   const activeTreasure = selectedTreasure || nearbyTreasure;
   const isNearby = activeTreasure && nearbyTreasure && activeTreasure.id === nearbyTreasure.id;
+
+  // Formatting Helper
+  const formattedBalance = balanceData
+    ? (parseInt(balanceData.totalBalance) / 1_000_000_000).toFixed(2)
+    : "0.00";
 
   // TREASURE CREATION 
   const handleMapClick = async (lat: number, lng: number) => {
@@ -77,6 +89,7 @@ export default function Home() {
             lat, lng, isClaimed: false
           });
           setCreateMode(false);
+          refetchBalance(); // Update balance
           alert("Stash deployed on-chain! 🎉");
         },
         onError: (e) => {
@@ -115,6 +128,7 @@ export default function Home() {
           removeLocalTreasure(t.id);
           setArMode(false);
           setSelectedTreasure(null);
+          refetchBalance(); // Update balance
           alert("Treasure burned!");
         },
         onError: (e) => {
@@ -156,6 +170,7 @@ export default function Home() {
         onSuccess: (res) => {
           alert(`🎉 Loot Claimed! Digest: ${res.digest.slice(0, 8)}...`);
           setArMode(false);
+          refetchBalance(); // Update balance
         },
         onError: (e) => {
           logError('Failed to claim treasure', e, { user: account.address, treasureId: t.id });
@@ -171,7 +186,7 @@ export default function Home() {
   };
 
   return (
-    <main className="relative w-full h-screen overflow-hidden bg-black text-white font-sans">
+    <main className="relative w-full h-[100dvh] overflow-hidden bg-black text-white font-sans">
 
       {/* AR VIEW OVERLAY */}
       {arMode && nearbyTreasure && (
@@ -208,7 +223,7 @@ export default function Home() {
               {/* Content */}
               <div className="relative z-10">
                 <h1 className="text-2xl sm:text-4xl font-black tracking-tighter italic bg-gradient-to-r from-cyan-300 via-blue-500 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(0,234,255,0.3)]">
-                  wa <span className="text-cyan-200/90 mix-blend-overlay">SUI</span>
+                  wa<span className="text-cyan-200/90 mix-blend-overlay">SUI</span>
                 </h1>
 
                 <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-3">
@@ -226,7 +241,23 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col items-end gap-2">
-              <ConnectButton />
+              <div className="flex items-center gap-2">
+                {account && (
+                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-white/10 backdrop-blur-md">
+                    <Wallet size={14} className="text-cyan-400" />
+                    <span className="text-sm font-mono text-cyan-100">{formattedBalance} SUI</span>
+                  </div>
+                )}
+                <ConnectButton />
+              </div>
+
+              {/* Mobile Balance (Visible below connect button on small screens if needed, or integrated above) */}
+              {account && (
+                <div className="sm:hidden flex items-center gap-2 px-2 py-1 rounded-md bg-black/60 border border-white/10 backdrop-blur-md mb-1">
+                  <span className="text-[10px] font-mono text-cyan-100">{formattedBalance} SUI</span>
+                </div>
+              )}
+
               <button
                 onClick={() => setCreateMode(!createMode)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all duration-300 shadow-lg hover:scale-105 active:scale-95

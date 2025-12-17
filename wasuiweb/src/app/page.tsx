@@ -208,7 +208,7 @@ export default function Home() {
               {/* Content */}
               <div className="relative z-10">
                 <h1 className="text-2xl sm:text-4xl font-black tracking-tighter italic bg-gradient-to-r from-cyan-300 via-blue-500 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(0,234,255,0.3)]">
-                  wa<span className="text-cyan-200/90 mix-blend-overlay">SUI</span>
+                  wa <span className="text-cyan-200/90 mix-blend-overlay">SUI</span>
                 </h1>
 
                 <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-3">

@@ -61,27 +61,34 @@ export async function fetchAllTreasures(): Promise<Treasure[]> {
             return [];
         }
 
-        logger.debug('Fetching treasures via events', { packageId, network });
+        logger.debug('Fetching treasures via transaction history', { packageId, network });
 
-        // 1. Query events to find created treasures
-        const events = await suiClient.queryEvents({
-            query: {
-                MoveEventType: `${packageId}::game::TreasureCreated`,
+        // 1. Query transactions that called create_treasure
+        const txs = await suiClient.queryTransactionBlocks({
+            filter: {
+                MoveFunction: {
+                    package: packageId,
+                    module: 'game',
+                    function: 'create_treasure'
+                }
+            },
+            options: {
+                showObjectChanges: true,
             },
             limit: 50,
             order: 'descending',
         });
 
-        // 2. Extract Object IDs
-        const objectIds = events.data
-            .map((e: any) => {
-                const id = e.parsedJson?.id;
-                if (!id) {
-                    logger.warn('Event missing parsedJson.id', { eventId: e.id });
-                }
-                return id;
-            })
-            .filter((id): id is string => !!id);
+        // 2. Extract Object IDs from created objects
+        const objectIds: string[] = [];
+        txs.data.forEach(tx => {
+            if (tx.objectChanges) {
+                const created = tx.objectChanges.find(
+                    (change) => change.type === 'created' && change.objectType.endsWith('::Treasure')
+                ) as any;
+                if (created) objectIds.push(created.objectId);
+            }
+        });
 
         if (objectIds.length === 0) {
             return [];
@@ -107,7 +114,7 @@ export async function fetchAllTreasures(): Promise<Treasure[]> {
             })
             .filter((t): t is Treasure => t !== null);
 
-        logger.info(`Fetched ${treasures.length} treasures from events`);
+        logger.info(`Fetched ${treasures.length} treasures from transactions`);
         return treasures;
     } catch (error) {
         logError('Failed to fetch treasures from blockchain', error);

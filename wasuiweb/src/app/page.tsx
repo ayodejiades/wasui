@@ -62,6 +62,10 @@ export default function Home() {
     setIsProcessing(true);
     const tx = new Transaction();
 
+    // Create Payment Coin
+    const amountInMist = parseFloat(rewardAmount || "0") * 1_000_000_000;
+    const [paymentCoin] = tx.splitCoins(tx.gas, [tx.pure.u64(amountInMist)]);
+
     // Construct Move Call
     tx.moveCall({
       target: `${process.env.NEXT_PUBLIC_SUI_PACKAGE_ID}::game::create_treasure`,
@@ -69,7 +73,8 @@ export default function Home() {
         tx.pure.string(name),
         tx.pure.string("UGC Stash"),
         tx.pure.string(lat.toString()),
-        tx.pure.string(lng.toString())
+        tx.pure.string(lng.toString()),
+        paymentCoin
       ]
     });
 

@@ -23,13 +23,11 @@ export default function Home() {
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
   const [selectedTreasure, setSelectedTreasure] = useState<Treasure | null>(null);
 
-  // Active treasure to display in UI (Selected takes precedence, else Nearby)
   const activeTreasure = selectedTreasure || nearbyTreasure;
   const isNearby = activeTreasure && nearbyTreasure && activeTreasure.id === nearbyTreasure.id;
 
-  // --- 1. TREASURE CREATION ---
+  // TREASURE CREATION 
   const handleMapClick = async (lat: number, lng: number) => {
-    // If not in create mode, clicking map deselects treasure
     if (!createMode) {
       setSelectedTreasure(null);
       return;
@@ -79,7 +77,7 @@ export default function Home() {
             lat, lng, isClaimed: false
           });
           setCreateMode(false);
-          alert("🎉 Stash deployed on-chain!");
+          alert("Stash deployed on-chain! 🎉");
         },
         onError: (e) => {
           logError('Failed to create treasure', e, { user: account.address, name, lat, lng });
@@ -90,7 +88,7 @@ export default function Home() {
     setIsProcessing(false);
   };
 
-  // --- 2. DELETION LOGIC ---
+
   const handleDelete = (t: Treasure) => {
     if (!account) return;
 
@@ -129,30 +127,28 @@ export default function Home() {
   };
 
 
-
-  // --- 3. CLAIM LOGIC (Triggered from AR or Button) ---
   const handleOpenTreasure = async (t: Treasure) => {
     if (!account || !userLocation) return;
 
     // Check for temp ID
     if (t.id.startsWith("temp-")) {
-      alert("⏳ This stash is syncing with the blockchain. Please wait a moment and try again.");
-      return; // Stop execution
+      alert("This stash is syncing with the blockchain. Please wait a moment and try again.");
+      return;
     }
 
     setIsProcessing(true);
     try {
-      // A. Generate ZK Proof (Client Side privacy)
+      // Generate ZK Proof (Client Side privacy)
       await generateLocationProof(userLocation.lat, userLocation.lng, t.id);
 
-      // B. Submit to Blockchain
+      // Submit to Blockchain
       const tx = new Transaction();
       tx.moveCall({
         target: `${process.env.NEXT_PUBLIC_SUI_PACKAGE_ID}::game::claim_treasure_with_proof`,
         arguments: [
           tx.object(t.id),
-          tx.object("0x8"), // Sui Random Object
-          tx.pure.vector("u8", [1, 2, 3]) // Proof bytes
+          tx.object("0x8"),
+          tx.pure.vector("u8", [1, 2, 3])
         ]
       });
 
@@ -295,7 +291,7 @@ export default function Home() {
                     onClick={() => handleOpenTreasure(activeTreasure)}
                     className="text-sm text-gray-400 underline hover:text-cyan-400 transition-all duration-300 hover:drop-shadow-[0_0_8px_rgba(0,234,255,0.8)] font-medium"
                   >
-                    {isProcessing ? "⚡ Verifying..." : "Or claim without AR"}
+                    {isProcessing ? "Verifying..." : "Or claim without AR"}
                   </button>
                 )}
 

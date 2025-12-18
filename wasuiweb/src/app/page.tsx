@@ -30,19 +30,104 @@ export default function Home() {
   const [arMode, setArMode] = useState(false);
   const [rateLimitMessage, setRateLimitMessage] = useState<string | null>(null);
   const [selectedTreasure, setSelectedTreasure] = useState<Treasure | null>(null);
+  const [manualLat, setManualLat] = useState<string>("");
+  const [manualLng, setManualLng] = useState<string>("");
 
   const activeTreasure = selectedTreasure || nearbyTreasure;
   const isNearby = activeTreasure && nearbyTreasure && activeTreasure.id === nearbyTreasure.id;
 
   // Snap to Current Location
   const handleSnapToLocation = () => {
-    if (userLocation) {
-      const mapElement = document.querySelector('[class*="mapboxgl-canvas"]') as HTMLElement;
-      if (mapElement) {
-        const event = new CustomEvent('snapToLocation', { detail: userLocation });
-        mapElement.dispatchEvent(event);
-      }
+    if (!userLocation) {
+      alert("Your location is not available yet. Please enable geolocation.");
+      return;
     }
+    const mapElement = document.querySelector('[class*="mapboxgl-canvas"]') as HTMLElement;
+    if (mapElement) {
+      const event = new CustomEvent('snapToLocation', { detail: userLocation });
+      mapElement.dispatchEvent(event);
+    }
+  };
+
+  // Handle coordinate-based treasure creation
+  const handleCreateWithCoordinates = async () => {
+    if (!createMode || !account) return;
+
+    const lat = parseFloat(manualLat);
+    const lng = parseFloat(manualLng);
+
+    // Validate coordinates
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      alert("Invalid coordinates. Latitude: -90 to 90, Longitude: -180 to 180");
+      return;
+    }
+
+    // Check rate limit
+    if (!rateLimiter.isAllowed(RATE_LIMITS.TREASURE_CREATE)) {
+      const remaining = Math.ceil(rateLimiter.getRemainingCooldown(RATE_LIMITS.TREASURE_CREATE) / 1000);
+      setRateLimitMessage(`Please wait ${remaining} seconds before creating another treasure`);
+      setTimeout(() => setRateLimitMessage(null), 3000);
+      return;
+    }
+
+    const name = prompt("Enter a name for this Stash:");
+    if (!name) return;
+
+    setIsProcessing(true);
+    const tx = new Transaction();
+
+    const amountInMist = parseFloat(rewardAmount || "0") * 1_000_000_000;
+    const [paymentCoin] = tx.splitCoins(tx.gas, [tx.pure.u64(amountInMist)]);
+
+    tx.moveCall({
+      target: `${process.env.NEXT_PUBLIC_SUI_PACKAGE_ID}::game::create_treasure`,
+      arguments: [
+        tx.pure.string(name),
+        tx.pure.string("UGC Stash"),
+        tx.pure.string(lat.toString()),
+        tx.pure.string(lng.toString()),
+        paymentCoin
+      ]
+    });
+
+    signAndExecute(
+      // @ts-ignore
+      { transaction: tx, chain: 'sui:testnet', options: { showObjectChanges: true } },
+      {
+        onSuccess: (res: any) => {
+          const createdObj = res.objectChanges?.find((c: any) => c.type === 'created');
+          const newId = createdObj?.objectId || `temp-${Date.now()}`;
+
+          addLocalTreasure({
+            id: newId,
+            creator: account.address,
+            name: name,
+            description: "New",
+            lat, lng, isClaimed: false
+          });
+          setCreateMode(false);
+          setManualLat("");
+          setManualLng("");
+          refetchBalance();
+          alert("Stash deployed on-chain! 🎉");
+        },
+        onError: (e) => {
+          logError('Failed to create treasure', e, { user: account.address, name, lat, lng });
+          alert("Failed to deploy stash: " + e.message);
+        }
+      }
+    );
+    setIsProcessing(false);
+  };
+
+  // Use current location for coordinates
+  const handleUseCurrentLocation = () => {
+    if (!userLocation) {
+      alert("Your location is not available yet.");
+      return;
+    }
+    setManualLat(userLocation.lat.toFixed(6));
+    setManualLng(userLocation.lng.toFixed(6));
   };
 
   // Global Reset Handler
@@ -302,6 +387,7 @@ export default function Home() {
 
               {createMode && (
                 <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/10 backdrop-blur-md p-4 rounded-xl border border-yellow-500/40 animate-fade-in-up mb-1 flex flex-col gap-2 w-full max-w-[220px] shadow-[0_0_20px_rgba(234,179,8,0.2)]" style={{ padding: '5px' }}>
+                  {/* Reward Input */}
                   <label className="text-xs text-yellow-400 font-bold uppercase tracking-wider"> Reward (SUI)</label>
                   <div className="flex items-center gap-2 bg-black/60 border border-yellow-500/30 rounded-lg overflow-hidden">
                     <button
@@ -329,6 +415,46 @@ export default function Home() {
                       +
                     </button>
                   </div>
+
+                  {/* Coordinates Input */}
+                  <div className="mt-3 pt-3 border-t border-yellow-500/20">
+                    <label className="text-xs text-yellow-400 font-bold uppercase tracking-wider">📍 Coordinates (Optional)</label>
+                    <div className="flex flex-col gap-2 mt-2">
+                      <div className="flex gap-1">
+                        <input
+                          type="number"
+                          value={manualLat}
+                          onChange={(e) => setManualLat(e.target.value)}
+                          className="bg-black/60 border border-yellow-500/30 focus:border-yellow-400/80 rounded px-2 py-1.5 text-white text-xs focus:outline-none transition-all duration-300 w-1/2 placeholder-gray-500"
+                          placeholder="Lat"
+                          step="0.0001"
+                        />
+                        <input
+                          type="number"
+                          value={manualLng}
+                          onChange={(e) => setManualLng(e.target.value)}
+                          className="bg-black/60 border border-yellow-500/30 focus:border-yellow-400/80 rounded px-2 py-1.5 text-white text-xs focus:outline-none transition-all duration-300 w-1/2 placeholder-gray-500"
+                          placeholder="Lng"
+                          step="0.0001"
+                        />
+                      </div>
+                      <button
+                        onClick={handleUseCurrentLocation}
+                        className="text-xs text-yellow-300 bg-yellow-500/10 border border-yellow-500/40 hover:bg-yellow-500/20 px-2 py-1.5 rounded transition-all duration-200 font-semibold"
+                      >
+                        📍 Use Current Location
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Submit with Coordinates Button */}
+                  <button
+                    onClick={handleCreateWithCoordinates}
+                    disabled={isProcessing || !manualLat || !manualLng}
+                    className="text-xs text-yellow-300 bg-yellow-500/20 border border-yellow-500/50 hover:bg-yellow-500/30 px-3 py-1.5 rounded font-semibold mt-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    ✓ Create with Coords
+                  </button>
                 </div>
               )}
 
@@ -355,8 +481,20 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Global Back Button - Always visible and accessible */}
-          <div className="flex justify-start pointer-events-auto mt-4" style={{ marginTop: '290px'}}>
+          {/* Global Back Button & Snap Location - Always visible and accessible */}
+          <div className="flex justify-start gap-2 pointer-events-auto mt-4" style={{ marginTop: '200px'}}>
+            {/* Snap to Location Button */}
+            <button
+              onClick={handleSnapToLocation}
+              className="flex items-center gap-2 px-4 py-3 rounded-xl bg-black/80 border-2 border-cyan-400/50 hover:border-cyan-300/80 text-cyan-300 font-bold text-sm transition-all duration-300 shadow-[0_0_20px_rgba(0,234,255,0.3)] hover:shadow-[0_0_30px_rgba(0,234,255,0.5)] hover:bg-black/90 active:scale-95 relative overflow-hidden group backdrop-blur-md"
+              title="Snap to your current location"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <LocateFixed size={16} className="relative z-10 drop-shadow-[0_0_4px_rgba(0,234,255,0.7)]" />
+              <span className="relative z-10">SNAP</span>
+            </button>
+
+            {/* Back Button */}
             {(createMode || selectedTreasure || arMode || rateLimitMessage) && (
               <button
                 onClick={handleReset}

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ConnectButton, useCurrentAccount, useSignAndExecuteTransaction, useSuiClientQuery } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-import { Camera, MapPin, Plus, Trash2, Clock, Wallet } from "lucide-react";
+import { Camera, MapPin, Plus, Trash2, Clock, Wallet, ArrowLeft } from "lucide-react";
 import MapboxMap from "../components/MapboxMap";
 import ARView from "../components/ARView";
 import { useGameLogic, Treasure } from "../hooks/useGameLogic";
@@ -33,6 +33,17 @@ export default function Home() {
 
   const activeTreasure = selectedTreasure || nearbyTreasure;
   const isNearby = activeTreasure && nearbyTreasure && activeTreasure.id === nearbyTreasure.id;
+
+  // Global Reset Handler
+  const handleReset = () => {
+    setCreateMode(false);
+    setSelectedTreasure(null);
+    setArMode(false);
+    setRateLimitMessage(null);
+    setRewardAmount("0");
+  };
+
+  // Check if any action is active
 
   // Formatting Helper
   const formattedBalance = balanceData
@@ -224,10 +235,10 @@ export default function Home() {
           {/* Header */}
           <div className="flex justify-between items-start pointer-events-auto">
             {/* Glass Container */}
-            <div className="relative group overflow-hidden bg-gradient-to-br from-white/10 via-black/30 to-black/50 backdrop-blur-2xl p-3 sm:p-5 rounded-2xl border border-white/10 border-t-white/20 border-l-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:shadow-[0_8px_32px_0_rgba(0,234,255,0.2)] transition-all duration-500 max-w-[50%] sm:max-w-none">
+            <div className="relative group overflow-hidden bg-gradient-to-br from-white/10 via-black/30 to-black/50 backdrop-blur-2xl p-3 sm:p-5 rounded-2xl border border-white/10 border-t-white/20 border-l-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:shadow-[0_8px_32px_0_rgba(0,234,255,0.2)] transition-all duration-500 max-w-[50%] sm:max-w-none" style={{  margin: '5px', marginTop: '5px' }}>
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
               {/* Content */}
-              <div className="relative z-10" style={{ paddingRight: '20px', paddingBottom: '6px' }}>
+              <div className="relative z-10" style={{ paddingRight: '20px', paddingBottom: '6px', marginTop: '5px' }}>
                 <h1 className="text-2xl sm:text-4xl font-black tracking-tighter italic bg-gradient-to-r from-cyan-300 via-blue-500 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(0,234,255,0.3)]">
                   wa<span className="text-cyan-200/90 mix-blend-overlay">SUI</span>
                 </h1>
@@ -249,12 +260,12 @@ export default function Home() {
             <div className="flex flex-col items-end gap-2">
               <div className="flex items-center gap-3">
                 {account && (
-                  <div className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-black/60 to-black/40 border border-cyan-500/50 backdrop-blur-md hover:border-cyan-400/80 transition-all duration-300 shadow-[0_0_20px_rgba(0,234,255,0.3)] hover:shadow-[0_0_30px_rgba(0,234,255,0.5)]">
+                  <div className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-black/60 to-black/40 border border-cyan-500/50 backdrop-blur-md hover:border-cyan-400/80 transition-all duration-300 shadow-[0_0_20px_rgba(0,234,255,0.3)] hover:shadow-[0_0_30px_rgba(0,234,255,0.5)]" style={{ padding: '10px'}}>
                     <Wallet size={16} className="text-cyan-300" />
                     <span className="text-sm font-mono text-cyan-100 font-semibold">{formattedBalance} SUI</span>
                   </div>
                 )}
-                <div className="rounded-xl overflow-hidden shadow-[0_0_25px_rgba(0,234,255,0.4)] hover:shadow-[0_0_35px_rgba(0,234,255,0.6)] transition-all duration-300">
+                <div className="rounded-xl overflow-hidden shadow-[0_0_25px_rgba(0,234,255,0.4)] hover:shadow-[0_0_35px_rgba(0,234,255,0.6)] transition-all duration-300" style={{ padding: '6px', margin: '7px', marginTop: '5px' }}>
                   <ConnectButton />
                 </div>
               </div>
@@ -268,29 +279,48 @@ export default function Home() {
               )}
 
               {createMode && (
-                <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/10 backdrop-blur-md p-4 rounded-xl border border-yellow-500/40 animate-fade-in-up mb-1 flex flex-col gap-2 w-full max-w-[220px] shadow-[0_0_20px_rgba(234,179,8,0.2)]">
-                  <label className="text-xs text-yellow-400 font-bold uppercase tracking-wider">💰 Reward (SUI)</label>
-                  <input
-                    type="number"
-                    value={rewardAmount}
-                    onChange={(e) => setRewardAmount(e.target.value)}
-                    className="bg-black/60 border border-yellow-500/30 focus:border-yellow-400/80 rounded-lg px-3 py-2 text-white text-sm focus:outline-none transition-all duration-300 w-full placeholder-gray-500"
-                    placeholder="0.0"
-                    min="0"
-                    step="0.1"
-                  />
+                <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/10 backdrop-blur-md p-4 rounded-xl border border-yellow-500/40 animate-fade-in-up mb-1 flex flex-col gap-2 w-full max-w-[220px] shadow-[0_0_20px_rgba(234,179,8,0.2)]" style={{ padding: '5px' }}>
+                  <label className="text-xs text-yellow-400 font-bold uppercase tracking-wider"> Reward (SUI)</label>
+                  <div className="flex items-center gap-2 bg-black/60 border border-yellow-500/30 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => setRewardAmount(Math.max(0, parseFloat(rewardAmount || "0") - 0.1).toFixed(1))}
+                      className="px-3 py-2 text-yellow-400 hover:bg-yellow-500/20 transition-colors duration-200 font-bold text-lg active:scale-95"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      value={rewardAmount}
+                      onChange={(e) => setRewardAmount(e.target.value)}
+                      className="bg-transparent border-none focus:outline-none text-white text-sm text-center flex-1 placeholder-gray-500"
+                      placeholder="0.0"
+                      min="0"
+                      step="0.1"  
+                      style={{
+                        maxWidth: '80%'
+                      }}
+                    />
+                    <button
+                      onClick={() => setRewardAmount((parseFloat(rewardAmount || "0") + 0.1).toFixed(1))}
+                      className="px-3 py-2 text-yellow-400 hover:bg-yellow-500/20 transition-colors duration-200 font-bold text-lg active:scale-95"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               )}
 
+              {/* Create Stash of SUI */}
               <button
                 onClick={() => setCreateMode(!createMode)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg hover:scale-105 active:scale-95 relative overflow-hidden group
                         ${createMode
                     ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-[0_0_25px_rgba(234,179,8,0.7)] hover:shadow-[0_0_35px_rgba(234,179,8,0.9)] border border-yellow-300/60'
                     : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white border border-cyan-400/50 hover:border-cyan-300/80 shadow-[0_0_20px_rgba(0,234,255,0.4)] hover:shadow-[0_0_30px_rgba(0,234,255,0.6)]'}`}
+                style={{ margin: '7px' }}
               >
                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <span className="relative z-10" style={{ padding: '13px' }}>{createMode ? "🗺️ TAP MAP" : <><Plus size={18} className="animate-pulse" /> CREATE STASH</>}</span>
+                <span className="relative z-10" style={{ padding: '10px',  maxHeight: '40px' }}>{createMode ? "TAP MAP" : <> CREATE STASH </>}</span>
               </button>
 
               {/* Rate Limit Message */}
@@ -301,6 +331,21 @@ export default function Home() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Global Back Button - Always visible and accessible */}
+          <div className="flex justify-start pointer-events-auto mt-4" style={{ marginTop: '290px'}}>
+            {(createMode || selectedTreasure || arMode || rateLimitMessage) && (
+              <button
+                onClick={handleReset}
+                className="flex items-center gap-2 px-5 py-3 rounded-xl bg-black/80 border-2 border-white/40 hover:border-white/70 text-white font-bold text-sm transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] hover:bg-black/90 active:scale-95 relative overflow-hidden group backdrop-blur-md"
+                style={{ padding: '9px' }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <ArrowLeft size={16} className="relative z-10 drop-shadow-[0_0_4px_rgba(255,255,255,0.7)]" />
+                <span className="relative z-10">BACK</span>
+              </button>
+            )}
           </div>
 
           {/* Blockchain Sync Loading Indicator */}

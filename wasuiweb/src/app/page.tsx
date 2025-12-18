@@ -227,7 +227,7 @@ export default function Home() {
             <div className="relative group overflow-hidden bg-gradient-to-br from-white/10 via-black/30 to-black/50 backdrop-blur-2xl p-3 sm:p-5 rounded-2xl border border-white/10 border-t-white/20 border-l-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:shadow-[0_8px_32px_0_rgba(0,234,255,0.2)] transition-all duration-500 max-w-[50%] sm:max-w-none">
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
               {/* Content */}
-              <div className="relative z-10">
+              <div className="relative z-10" style={{ paddingRight: '20px', paddingBottom: '6px' }}>
                 <h1 className="text-2xl sm:text-4xl font-black tracking-tighter italic bg-gradient-to-r from-cyan-300 via-blue-500 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(0,234,255,0.3)]">
                   wa<span className="text-cyan-200/90 mix-blend-overlay">SUI</span>
                 </h1>
@@ -247,31 +247,34 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col items-end gap-2">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 {account && (
-                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-white/10 backdrop-blur-md">
-                    <Wallet size={14} className="text-cyan-400" />
-                    <span className="text-sm font-mono text-cyan-100">{formattedBalance} SUI</span>
+                  <div className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-black/60 to-black/40 border border-cyan-500/50 backdrop-blur-md hover:border-cyan-400/80 transition-all duration-300 shadow-[0_0_20px_rgba(0,234,255,0.3)] hover:shadow-[0_0_30px_rgba(0,234,255,0.5)]">
+                    <Wallet size={16} className="text-cyan-300" />
+                    <span className="text-sm font-mono text-cyan-100 font-semibold">{formattedBalance} SUI</span>
                   </div>
                 )}
-                <ConnectButton />
+                <div className="rounded-xl overflow-hidden shadow-[0_0_25px_rgba(0,234,255,0.4)] hover:shadow-[0_0_35px_rgba(0,234,255,0.6)] transition-all duration-300">
+                  <ConnectButton />
+                </div>
               </div>
 
               {/* Mobile Balance */}
               {account && (
-                <div className="sm:hidden flex items-center gap-2 px-2 py-1 rounded-md bg-black/60 border border-white/10 backdrop-blur-md mb-1">
-                  <span className="text-[10px] font-mono text-cyan-100">{formattedBalance} SUI</span>
+                <div className="sm:hidden flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-black/70 to-black/50 border border-cyan-500/40 backdrop-blur-md shadow-[0_0_15px_rgba(0,234,255,0.2)]">
+                  <Wallet size={12} className="text-cyan-300" />
+                  <span className="text-[11px] font-mono text-cyan-100 font-medium">{formattedBalance} SUI</span>
                 </div>
               )}
 
               {createMode && (
-                <div className="bg-black/80 backdrop-blur-md p-3 rounded-xl border border-yellow-500/30 animate-fade-in-up mb-1 flex flex-col gap-1 w-full max-w-[200px]">
-                  <label className="text-xs text-yellow-500 font-bold uppercase tracking-wider">Add Reward (SUI)</label>
+                <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/10 backdrop-blur-md p-4 rounded-xl border border-yellow-500/40 animate-fade-in-up mb-1 flex flex-col gap-2 w-full max-w-[220px] shadow-[0_0_20px_rgba(234,179,8,0.2)]">
+                  <label className="text-xs text-yellow-400 font-bold uppercase tracking-wider">💰 Reward (SUI)</label>
                   <input
                     type="number"
                     value={rewardAmount}
                     onChange={(e) => setRewardAmount(e.target.value)}
-                    className="bg-black/50 border border-white/20 rounded px-2 py-1 text-white text-sm focus:outline-none focus:border-yellow-500 w-full"
+                    className="bg-black/60 border border-yellow-500/30 focus:border-yellow-400/80 rounded-lg px-3 py-2 text-white text-sm focus:outline-none transition-all duration-300 w-full placeholder-gray-500"
                     placeholder="0.0"
                     min="0"
                     step="0.1"
@@ -281,19 +284,20 @@ export default function Home() {
 
               <button
                 onClick={() => setCreateMode(!createMode)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all duration-300 shadow-lg hover:scale-105 active:scale-95
+                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg hover:scale-105 active:scale-95 relative overflow-hidden group
                         ${createMode
-                    ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black animate-pulse shadow-[0_0_20px_rgba(234,179,8,0.6)] hover:shadow-[0_0_30px_rgba(234,179,8,0.8)]'
-                    : 'bg-gradient-to-r from-gray-900 to-gray-800 text-white border border-cyan-500/30 hover:border-cyan-500/60 shadow-[0_0_15px_rgba(0,234,255,0.2)] hover:shadow-[0_0_25px_rgba(0,234,255,0.4)]'}`}
+                    ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-[0_0_25px_rgba(234,179,8,0.7)] hover:shadow-[0_0_35px_rgba(234,179,8,0.9)] border border-yellow-300/60'
+                    : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white border border-cyan-400/50 hover:border-cyan-300/80 shadow-[0_0_20px_rgba(0,234,255,0.4)] hover:shadow-[0_0_30px_rgba(0,234,255,0.6)]'}`}
               >
-                {createMode ? "TAP MAP TO PLACE" : <><Plus size={18} className="animate-pulse" /> CREATE STASH</>}
+                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="relative z-10" style={{ padding: '13px' }}>{createMode ? "🗺️ TAP MAP" : <><Plus size={18} className="animate-pulse" /> CREATE STASH</>}</span>
               </button>
 
               {/* Rate Limit Message */}
               {rateLimitMessage && (
-                <div className="bg-orange-500/20 border border-orange-500/40 rounded-lg px-4 py-2 text-xs text-orange-300 flex items-center gap-2 animate-fade-in-up">
-                  <Clock size={14} />
-                  {rateLimitMessage}
+                <div className="bg-orange-500/25 border border-orange-500/50 rounded-lg px-4 py-2.5 text-xs text-orange-300 flex items-center gap-2 animate-fade-in-up shadow-[0_0_15px_rgba(255,126,38,0.3)] font-medium">
+                  <Clock size={14} className="flex-shrink-0" />
+                  <span>{rateLimitMessage}</span>
                 </div>
               )}
             </div>
@@ -328,11 +332,11 @@ export default function Home() {
                   <button
                     onClick={() => setArMode(true)}
                     disabled={isProcessing}
-                    className="w-full bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 bg-[length:200%_100%] hover:bg-[position:100%_0] text-white font-black py-5 rounded-2xl shadow-[0_0_40px_rgba(0,200,255,0.5)] hover:shadow-[0_0_60px_rgba(0,200,255,0.8)] flex items-center justify-center gap-3 transform transition-all duration-500 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-cyan-400/50 hover:border-cyan-300 relative overflow-hidden group"
+                    className="w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 bg-[length:200%_100%] hover:bg-[position:100%_0] text-white font-black py-5 px-6 rounded-2xl shadow-[0_0_40px_rgba(0,200,255,0.5)] hover:shadow-[0_0_60px_rgba(0,200,255,0.8)] flex items-center justify-center gap-3 transform transition-all duration-500 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-cyan-300/60 hover:border-cyan-200 relative overflow-hidden group uppercase tracking-widest"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                    <Camera size={26} className="relative z-10 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
-                    <span className="relative z-10 tracking-wider drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">ENTER AR MODE</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                    <Camera size={24} className="relative z-10 drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]" />
+                    <span className="relative z-10 drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]">Enter AR Mode</span>
                   </button>
                 )}
 
@@ -341,9 +345,9 @@ export default function Home() {
                   <button
                     disabled={isProcessing}
                     onClick={() => handleOpenTreasure(activeTreasure)}
-                    className="text-sm text-gray-400 underline hover:text-cyan-400 transition-all duration-300 hover:drop-shadow-[0_0_8px_rgba(0,234,255,0.8)] font-medium"
+                    className="text-sm text-cyan-300 hover:text-cyan-100 transition-all duration-300 hover:drop-shadow-[0_0_8px_rgba(0,234,255,0.8)] font-semibold underline underline-offset-2"
                   >
-                    {isProcessing ? "Verifying..." : "Or claim without AR"}
+                    {isProcessing ? "⏳ Verifying..." : "⚡ Or claim without AR"}
                   </button>
                 )}
 
@@ -352,9 +356,11 @@ export default function Home() {
                   <button
                     onClick={() => handleDelete(activeTreasure)}
                     disabled={isProcessing}
-                    className="flex items-center gap-2 text-sm text-red-400 bg-black/60 px-5 py-2.5 rounded-full border border-red-500/40 hover:bg-red-900/30 hover:border-red-500/70 transition-all duration-300 disabled:opacity-50 shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:shadow-[0_0_25px_rgba(239,68,68,0.5)] font-semibold hover:scale-105 active:scale-95"
+                    className="flex items-center gap-2 text-sm text-red-300 bg-gradient-to-r from-red-950/40 to-red-900/20 px-5 py-3 rounded-xl border border-red-500/50 hover:bg-red-900/40 hover:border-red-500/80 transition-all duration-300 disabled:opacity-50 shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:shadow-[0_0_25px_rgba(239,68,68,0.5)] font-semibold hover:scale-105 active:scale-95 relative overflow-hidden group"
                   >
-                    <Trash2 size={14} className="drop-shadow-[0_0_4px_rgba(239,68,68,0.8)]" /> Burn Stash
+                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <Trash2 size={16} className="drop-shadow-[0_0_4px_rgba(239,68,68,0.9)] relative z-10" />
+                    <span className="relative z-10">Burn Stash</span>
                   </button>
                 )}
               </div>

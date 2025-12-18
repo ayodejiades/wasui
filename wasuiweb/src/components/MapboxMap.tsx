@@ -181,5 +181,28 @@ export default function MapboxMap({ userLocation, treasures, onMapClick, onTreas
         }
     }, [userLocation]);
 
+    // 5. Handle Snap to Location Event
+    useEffect(() => {
+        if (!map.current || !userLocation) return;
+
+        const handleSnapToLocation = (e: any) => {
+            const { lat, lng } = e.detail || userLocation;
+            map.current?.flyTo({
+                center: [lng, lat],
+                zoom: 17,
+                pitch: 62,
+                duration: 1500,
+                essential: true
+            });
+        };
+
+        const mapContainer = document.querySelector('[class*="mapboxgl-canvas"]');
+        mapContainer?.addEventListener('snapToLocation', handleSnapToLocation);
+
+        return () => {
+            mapContainer?.removeEventListener('snapToLocation', handleSnapToLocation);
+        };
+    }, [userLocation]);
+
     return <div ref={mapContainer} className="w-full h-full bg-black" />;
 }

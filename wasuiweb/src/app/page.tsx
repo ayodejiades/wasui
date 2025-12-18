@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ConnectButton, useCurrentAccount, useSignAndExecuteTransaction, useSuiClientQuery } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-import { Camera, MapPin, Plus, Trash2, Clock, Wallet, ArrowLeft } from "lucide-react";
+import { Camera, MapPin, Plus, Trash2, Clock, Wallet, ArrowLeft, LocateFixed } from "lucide-react";
 import MapboxMap from "../components/MapboxMap";
 import ARView from "../components/ARView";
 import { useGameLogic, Treasure } from "../hooks/useGameLogic";
@@ -33,6 +33,17 @@ export default function Home() {
 
   const activeTreasure = selectedTreasure || nearbyTreasure;
   const isNearby = activeTreasure && nearbyTreasure && activeTreasure.id === nearbyTreasure.id;
+
+  // Snap to Current Location
+  const handleSnapToLocation = () => {
+    if (userLocation) {
+      const mapElement = document.querySelector('[class*="mapboxgl-canvas"]') as HTMLElement;
+      if (mapElement) {
+        const event = new CustomEvent('snapToLocation', { detail: userLocation });
+        mapElement.dispatchEvent(event);
+      }
+    }
+  };
 
   // Global Reset Handler
   const handleReset = () => {
@@ -253,6 +264,17 @@ export default function Home() {
                       ? `${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)}`
                       : "SIGNAL..."}
                   </p>
+
+                  {userLocation && (
+                    <button
+                      onClick={handleSnapToLocation}
+                      className="ml-2 p-2 rounded-lg bg-black/40 border border-cyan-500/50 hover:border-cyan-400/80 transition-all duration-300 shadow-[0_0_15px_rgba(0,234,255,0.2)] hover:shadow-[0_0_25px_rgba(0,234,255,0.4)] hover:bg-black/60 active:scale-90 relative overflow-hidden group"
+                      title="Snap to current location"
+                    >
+                      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <LocateFixed size={14} className="relative z-10 text-cyan-300 group-hover:text-cyan-200" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
